@@ -16,7 +16,20 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   var tab = 0;
-
+  var data = [
+    {
+      "id": 1,
+      "date": 20220117,
+      "title": "운동",
+      "text": "6시 재성이랑 운동",
+    },
+    {
+      "id": 2,
+      "date": 20220117,
+      "title": "술약속",
+      "text": "8시 당산 술약속",
+    },
+  ];
   addData(){
 
   }
@@ -25,8 +38,10 @@ class _MyAppState extends State<MyApp> {
 
   }
 
-  delData(){
-
+  delData(i){
+    setState(() {
+      data.remove(data[i]);
+    });
   }
 
   updateData(){
@@ -74,7 +89,7 @@ class _MyAppState extends State<MyApp> {
         selectedItemColor: Colors.teal,
       ),
       body: [
-        todaySchedule(),
+        todaySchedule(data: data , delData : delData),
         weekSchedule(),
         memoTodo()
       ][tab],
@@ -83,13 +98,14 @@ class _MyAppState extends State<MyApp> {
 }
 
 class todaySchedule extends StatelessWidget {
-  todaySchedule({Key? key}) : super(key: key);
-
-  var count = 10;
+  todaySchedule({Key? key, this.data , this.delData}) : super(key: key);
+  final delData;
+  final data;
+  //var count = 10;
   var scroll = ScrollController();
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(itemCount: count ,controller: scroll ,itemBuilder: (c,i){
+    return ListView.builder(itemCount: data.length ,controller: scroll ,itemBuilder: (c,i){
       return Container(
         decoration: BoxDecoration(
           border: Border.all(color: Colors.black),
@@ -102,14 +118,25 @@ class todaySchedule extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('시간: '),
-                Text('내용: '),
-                Text('상세내용')
+                Text('시간: ${data[i]['date'].toString()}'),
+                Text('내용: ${data[i]['title']}'),
+                Text('상세내용: ${data[i]['text']}')
               ],
             ),
-            IconButton( icon: Icon(Icons.check_box_outlined) ,onPressed:(){
-            })
+            Row(
+              children: [
+                IconButton( icon: Icon(Icons.check_box_outlined) ,onPressed:(){
+                  delData(i);
+                }),
+                IconButton( icon: Icon(Icons.settings_applications), onPressed: (){
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => updatePage(data : data[i]))
+                  );
+                },)
+              ]
+            )
           ],
         ),
       );
@@ -135,6 +162,41 @@ class memoTodo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       child: Text('MEMO'),
+    );
+  }
+}
+
+class updatePage extends StatelessWidget {
+  const updatePage({Key? key , this.data}) : super(key: key);
+
+  final data;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          title: Text('Schedule Update'),
+          backgroundColor: Colors.teal,
+        ),
+        body: Container(
+            child: Text('Update Page')
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          showSelectedLabels: false,
+          showUnselectedLabels: false,
+
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.check),
+              label: 'save',
+            ),
+
+            BottomNavigationBarItem(
+              icon: Icon(Icons.delete_outline_sharp),
+              label: 'delete',
+            )
+          ],
+        )
     );
   }
 }
