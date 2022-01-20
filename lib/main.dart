@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:table_calendar/table_calendar.dart';
+
 
 void main() {
   runApp(MaterialApp(
@@ -42,7 +44,6 @@ class _MyAppState extends State<MyApp> {
     };
     setState(() {
       data.add(newData);
-      print(newData['id']);
     });
   }
 
@@ -66,7 +67,6 @@ class _MyAppState extends State<MyApp> {
         if (data[a]['id'] == id) {
           if(date.text != ""){
             data[a]['date'] = date.text;
-            print(data);
           }
           if(title.text != ""){
             data[a]['title'] = title.text;
@@ -189,15 +189,52 @@ class todaySchedule extends StatelessWidget {
   }
 }
 
-class weekSchedule extends StatelessWidget {
-  const weekSchedule({Key? key}) : super(key: key);
+class weekSchedule extends StatefulWidget {
+  weekSchedule({Key? key}) : super(key: key);
+
+  @override
+  State<weekSchedule> createState() => _weekScheduleState();
+}
+
+class _weekScheduleState extends State<weekSchedule> {
+
+  CalendarFormat _calendarFormat = CalendarFormat.month;
+  DateTime _focusedDay = DateTime.now();
+  DateTime? _selectedDay;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Text('week schedule'),
+    return TableCalendar(
+      focusedDay: DateTime.now(),
+      firstDay: DateTime.utc(2010,1,1),
+      lastDay: DateTime.utc(2040,12,31),
+
+      selectedDayPredicate: (day) {
+        return isSameDay(_selectedDay, day);
+      },
+      onDaySelected: (selectedDay, focusedDay) {
+        setState(() {
+          _selectedDay = selectedDay;
+          _focusedDay = focusedDay; // update `_focusedDay` here as well
+        });
+      },
+      calendarFormat: _calendarFormat,
+      onFormatChanged: (format) {
+        setState(() {
+          _calendarFormat = format;
+        });
+      },
     );
   }
+}
+
+class Event {
+  final String title;
+
+  const Event(this.title);
+
+  @override
+  String toString() => title;
 }
 
 class memoTodo extends StatelessWidget {
