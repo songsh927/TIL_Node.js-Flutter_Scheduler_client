@@ -215,7 +215,7 @@ class _weekScheduleState extends State<weekSchedule> {
       onDaySelected: (selectedDay, focusedDay) {
         setState(() {
           _selectedDay = selectedDay;
-          _focusedDay = focusedDay; // update `_focusedDay` here as well
+          _focusedDay = focusedDay;
         });
       },
       calendarFormat: _calendarFormat,
