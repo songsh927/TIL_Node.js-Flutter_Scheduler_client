@@ -198,6 +198,12 @@ class weekSchedule extends StatefulWidget {
 
 class _weekScheduleState extends State<weekSchedule> {
 
+  //메인 data에서 파싱하여서 데이터 삽입? 아니면 data의 형식 변경?
+  Map<DateTime, List> _events = {
+    DateTime.utc(2022,01,21): ['asdf'],
+    DateTime.utc(2022,1,22): ['asdf'],
+  };
+
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
@@ -223,6 +229,12 @@ class _weekScheduleState extends State<weekSchedule> {
         setState(() {
           _calendarFormat = format;
         });
+      },
+      onPageChanged: (focusedDay) {
+        _focusedDay = focusedDay;
+      },
+      eventLoader: (day){
+        return _events[day] ?? [];
       },
     );
   }
