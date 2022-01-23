@@ -22,13 +22,13 @@ class _MyAppState extends State<MyApp> {
   var data = [
     {
       "id": 1,
-      "date": 20220117,
+      "date": '2022,01,17',
       "title": "운동",
       "text": "6시 운동",
     },
     {
       "id": 2,
-      "date": 20220117,
+      "date": '2022,01,17',
       "title": "술약속",
       "text": "8시 약속",
     },
@@ -132,7 +132,7 @@ class _MyAppState extends State<MyApp> {
       ),
       body: [
         todaySchedule(data: data , delData : delData , updateData: updateData,),
-        weekSchedule(),
+        weekSchedule(data : data),
         memoTodo()
       ][tab],
     );
@@ -190,18 +190,18 @@ class todaySchedule extends StatelessWidget {
 }
 
 class weekSchedule extends StatefulWidget {
-  weekSchedule({Key? key}) : super(key: key);
+  weekSchedule({Key? key, this.data}) : super(key: key);
 
+  final data;
   @override
   State<weekSchedule> createState() => _weekScheduleState();
 }
 
 class _weekScheduleState extends State<weekSchedule> {
 
-  //메인 data에서 파싱하여서 데이터 삽입? 아니면 data의 형식 변경?
   Map<DateTime, List> _events = {
-    DateTime.utc(2022,01,21): ['asdf'],
-    DateTime.utc(2022,1,22): ['asdf'],
+    //DateTime.utc(2022,01,21): ['asdf'],
+    //DateTime.utc(2022,1,22): ['asdf'],
   };
 
   CalendarFormat _calendarFormat = CalendarFormat.month;
@@ -210,6 +210,17 @@ class _weekScheduleState extends State<weekSchedule> {
 
   @override
   Widget build(BuildContext context) {
+
+    Map newData = new Map();
+    for(var i = 0 ; i < widget.data.length ; i++){
+      int y = int.parse(widget.data[i]['date'].split(",")[0]);
+      int m = int.parse(widget.data[i]['date'].split(",")[1]);
+      int d = int.parse(widget.data[i]['date'].split(",")[2]);
+
+      _events[DateTime.utc(y,m,d)] = [widget.data[i]['title']];
+    }
+
+    
     return TableCalendar(
       focusedDay: DateTime.now(),
       firstDay: DateTime.utc(2010,1,1),
@@ -240,14 +251,6 @@ class _weekScheduleState extends State<weekSchedule> {
   }
 }
 
-class Event {
-  final String title;
-
-  const Event(this.title);
-
-  @override
-  String toString() => title;
-}
 
 class memoTodo extends StatelessWidget {
   const memoTodo({Key? key}) : super(key: key);
