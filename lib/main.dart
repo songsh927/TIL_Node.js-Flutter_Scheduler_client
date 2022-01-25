@@ -199,54 +199,85 @@ class weekSchedule extends StatefulWidget {
 
 class _weekScheduleState extends State<weekSchedule> {
 
-  Map<DateTime, List> _events = {
-    //DateTime.utc(2022,01,21): ['asdf'],
-    //DateTime.utc(2022,1,22): ['asdf'],
-  };
+  final Map<DateTime, List> _events = {};
+  var _todayEvents = [];
 
   CalendarFormat _calendarFormat = CalendarFormat.month;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
 
   @override
-  Widget build(BuildContext context) {
-
-    Map newData = new Map();
+  void initState() {//TODO 데이터 날짜 입력 및 파싱 효율적으로 바꾸기
     for(var i = 0 ; i < widget.data.length ; i++){
       int y = int.parse(widget.data[i]['date'].split(",")[0]);
       int m = int.parse(widget.data[i]['date'].split(",")[1]);
       int d = int.parse(widget.data[i]['date'].split(",")[2]);
 
-      _events[DateTime.utc(y,m,d)] = [widget.data[i]['title']];
+      if(_events.containsKey(DateTime.utc(y, m, d))){
+        _events.update(DateTime.utc(y, m, d), (value) => value + [widget.data[i]['title']]);
+      }else{
+        _events[DateTime.utc(y, m, d)] = [widget.data[i]['title']];
+      }
     }
+    super.initState();
+  }
 
+  _countSelectedDay () {
+    setState(() {
+      _todayEvents = [];
+      _events[_selectedDay]?.forEach((e) => _todayEvents.add(e));
+    });
+    return _todayEvents.length;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     
-    return TableCalendar(
-      focusedDay: DateTime.now(),
-      firstDay: DateTime.utc(2010,1,1),
-      lastDay: DateTime.utc(2040,12,31),
+    return Column(
+      children: [
+        Container(
+          height: 400,
+          color: Colors.grey,
+          child: TableCalendar(
+            focusedDay: DateTime.now(),
+            firstDay: DateTime.utc(2010,1,1),
+            lastDay: DateTime.utc(2040,12,31),
 
-      selectedDayPredicate: (day) {
-        return isSameDay(_selectedDay, day);
-      },
-      onDaySelected: (selectedDay, focusedDay) {
-        setState(() {
-          _selectedDay = selectedDay;
-          _focusedDay = focusedDay;
-        });
-      },
-      calendarFormat: _calendarFormat,
-      onFormatChanged: (format) {
-        setState(() {
-          _calendarFormat = format;
-        });
-      },
-      onPageChanged: (focusedDay) {
-        _focusedDay = focusedDay;
-      },
-      eventLoader: (day){
-        return _events[day] ?? [];
-      },
+            selectedDayPredicate: (day) {
+              return isSameDay(_selectedDay, day);
+            },
+            onDaySelected: (selectedDay, focusedDay) {
+              setState(() {
+                _selectedDay = selectedDay;
+                _focusedDay = focusedDay;
+              });
+            },
+            calendarFormat: _calendarFormat,
+            onFormatChanged: (format) {
+              setState(() {
+                _calendarFormat = format;
+              });
+            },
+            onPageChanged: (focusedDay) {
+              _focusedDay = focusedDay;
+            },
+            eventLoader: (day){
+              return _events[day] ?? [];
+            },
+          ),
+        ),
+        Container(
+          height: 260,
+          child: ListView.builder(
+              itemCount: _countSelectedDay(),
+              itemBuilder: (c , i){
+                return ListTile(
+                  title: Text(_todayEvents[i]),
+                );
+              },
+          ),
+        ),
+      ],
     );
   }
 }
