@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:http/http.dart' as http;
 
 
 void main() {
@@ -20,19 +23,14 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   var tab = 0;
   var data = [
-    {
-      "id": 1,
-      "date": '2022,01,17',
-      "title": "운동",
-      "text": "6시 운동",
-    },
-    {
-      "id": 2,
-      "date": '2022,01,17',
-      "title": "술약속",
-      "text": "8시 약속",
-    },
+
   ];
+
+  @override
+  void initState(){
+    super.initState();
+    getData();
+  }
 
   addData(date, title, text){
     DateTime now = DateTime.now();
@@ -47,8 +45,10 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  getData(){
-
+  getData() async{
+    var getServerData = await http.get(Uri.parse('http://localhost:3000/scheduler'));
+    print(jsonDecode(getServerData.body));
+    data = jsonDecode(getServerData.body);
   }
 
   delData(i){
@@ -78,6 +78,8 @@ class _MyAppState extends State<MyApp> {
       }
     });
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -235,9 +237,8 @@ class _weekScheduleState extends State<weekSchedule> {
     
     return Column(
       children: [
-        Container(
+        SizedBox(
           height: 400,
-          color: Colors.grey,
           child: TableCalendar(
             focusedDay: DateTime.now(),
             firstDay: DateTime.utc(2010,1,1),
@@ -387,7 +388,6 @@ class updatePage extends StatelessWidget {
                       child: IconButton(
                           onPressed: (){
                             updateData(id,inputDate,inputTitle,inputText);
-                            print(inputDate);
                             Navigator.pop(context);
                           },
                           icon: Icon(Icons.check)
@@ -420,10 +420,16 @@ class updatePage extends StatelessWidget {
   }
 }
 
-class addSchedule extends StatelessWidget {
-  addSchedule({Key? key, this.addData}) : super(key: key);
+class addSchedule extends StatefulWidget{
+  const addSchedule({Key? key, this.addData}) : super(key: key);
 
   final addData;
+  @override
+  _addScheduleState createState() => _addScheduleState();
+}
+
+class _addScheduleState extends State<addSchedule> {
+
   var inputDate = TextEditingController();
   var inputTitle = TextEditingController();
   var inputText = TextEditingController();
@@ -494,7 +500,7 @@ class addSchedule extends StatelessWidget {
                 IconButton(
                   icon: Icon(Icons.check),
                   onPressed: (){
-                    addData(inputDate.text, inputTitle.text, inputText.text);
+                    widget.addData(inputDate.text, inputTitle.text, inputText.text);
                     Navigator.pop(context);
                   },
                 ),
@@ -512,3 +518,4 @@ class addSchedule extends StatelessWidget {
     );
   }
 }
+
