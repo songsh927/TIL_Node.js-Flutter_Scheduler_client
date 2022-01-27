@@ -32,7 +32,7 @@ class _MyAppState extends State<MyApp> {
     getData();
   }
 
-  addData(date, title, text){
+  addData(date, title, text) async{
     DateTime now = DateTime.now();
     var newData = {
       "id": DateFormat.yMd().add_jms().format(now),
@@ -40,6 +40,10 @@ class _MyAppState extends State<MyApp> {
       "title": title.toString(),
       "text": text.toString(),
     };
+    http.Response res = await http.post(
+        Uri.parse('http://localhost:3000/scheduler'),
+        headers: {"Content-Type" : "application/json"},
+        body:jsonEncode(newData));
     setState(() {
       data.add(newData);
     });
@@ -47,7 +51,6 @@ class _MyAppState extends State<MyApp> {
 
   getData() async{
     var getServerData = await http.get(Uri.parse('http://localhost:3000/scheduler'));
-    print(jsonDecode(getServerData.body));
     data = jsonDecode(getServerData.body);
   }
 
@@ -224,7 +227,7 @@ class _weekScheduleState extends State<weekSchedule> {
     super.initState();
   }
 
-  _countSelectedDay () {
+  _countSelectedDaySchedule () {
     setState(() {
       _todayEvents = [];
       _events[_selectedDay]?.forEach((e) => _todayEvents.add(e));
@@ -270,7 +273,7 @@ class _weekScheduleState extends State<weekSchedule> {
         Container(
           height: 260,
           child: ListView.builder(
-              itemCount: _countSelectedDay(),
+              itemCount: _countSelectedDaySchedule(),
               itemBuilder: (c , i){
                 return ListTile(
                   title: Text(_todayEvents[i]),
