@@ -45,7 +45,8 @@ class _MyAppState extends State<MyApp> {
     );
     print(newData['id']);
     setState(() {
-      data.add(newData);
+      getData();
+      //data.add(newData);
     });
 
 
@@ -53,32 +54,53 @@ class _MyAppState extends State<MyApp> {
 
   getData() async{
     var getServerData = await http.get(Uri.parse('http://localhost:3000/scheduler'));
-    data = jsonDecode(getServerData.body);
+    setState(() {
+      data = jsonDecode(getServerData.body);
+    });
   }
 
   delData(id) async{
 
     http.Response res = await http.delete(
-      Uri.parse('http://localhost:3000/scheduler/${id}'),
+      Uri.parse('http://localhost:3000/scheduler/$id'),
     );
     setState(() {//TODO foreach로 바꾸기
-      for(var a = 0 ; a < data.length ; a++) {
+      getData();
+      /*for(var a = 0 ; a < data.length ; a++) {
         if (data[a]['id'] == id) {
           data.remove(data[a]);
         }
-      }
+      }*/
     });
   }
 
-  updateData(id, date, title, text){
+  updateData(id, date, title, text) async{
+    var newData = {
+      "id": id,
+      "date": date.text,
+      "title": title.text,
+      "text": text.text,
+    };
+    http.Response res = await http.put(
+      Uri.parse('http://localhost:3000/scheduler/$id'),
+      headers: {"Content-Type" : "application/json"},
+      body: jsonEncode(newData)
+    );
     setState(() {
-      for(var a = 0 ; a < data.length ; a++) {
+      getData();
+      /*for(var a = 0 ; a < data.length ; a++) {
         if (data[a]['id'] == id) {
-          if(date.text != ""){ data[a]['date'] = date.text; }
-          if(title.text != ""){ data[a]['title'] = title.text; }
-          if(text.text != ""){ data[a]['text'] = text.text; }
+          if(date.text != ""){
+            data[a]['date'] = date.text;
+          }
+          if(title.text != ""){
+            data[a]['title'] = title.text;
+          }
+          if(text.text != ""){
+            data[a]['text'] = text.text;
+          }
         }
-      }
+      }*/
     });
   }
 
@@ -214,7 +236,11 @@ class _todayScheduleState extends State<todaySchedule> {
                       }),
                       IconButton( icon: Icon(Icons.settings_applications), onPressed: (){
                         Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => updatePage(data : widget.data[i], id : widget.data[i]['id'] , delData: widget.delData, updateData : widget.updateData,))
+                            MaterialPageRoute(builder: (context) => updatePage(
+                              data : widget.data[i],
+                              id : widget.data[i]['id'] ,
+                              delData: widget.delData,
+                              updateData : widget.updateData,))
                         );
                       },)
                     ]
