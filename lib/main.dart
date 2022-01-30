@@ -43,7 +43,6 @@ class _MyAppState extends State<MyApp> {
         headers: {"Content-Type" : "application/json"},
         body:jsonEncode(newData)
     );
-    print(newData['id']);
     setState(() {
       getData();
       //data.add(newData);
@@ -52,8 +51,18 @@ class _MyAppState extends State<MyApp> {
 
   }
 
-  getData() async{
-    var getServerData = await http.get(Uri.parse('http://localhost:3000/scheduler'));
+  getData([date]) async{
+    var getServerData;
+    if(date != null){
+      getServerData = await http.get(
+        Uri.parse('http://localhost:3000/scheduler?date=$date'),
+        headers: {"Content-Type" : "application/json"},
+      );
+    }else{
+      getServerData = await http.get(
+        Uri.parse('http://localhost:3000/scheduler'),
+      );
+    }
     setState(() {
       data = jsonDecode(getServerData.body);
     });
@@ -158,8 +167,8 @@ class _MyAppState extends State<MyApp> {
         selectedItemColor: Colors.teal,
       ),
       body: [
-        todaySchedule(data: data , delData : delData , updateData: updateData,),
-        weekSchedule(data : data),
+        todaySchedule(data: data , delData : delData , updateData: updateData, getData: getData,),
+        weekSchedule(data : data, getData: getData,),
         memoTodo()
       ][tab],
     );
@@ -167,8 +176,9 @@ class _MyAppState extends State<MyApp> {
 }
 
 class todaySchedule extends StatefulWidget {
-  todaySchedule({Key? key, this.data , this.delData, this.updateData}) : super(key: key);
+  todaySchedule({Key? key, this.data , this.delData, this.updateData, this.getData}) : super(key: key);
 
+  final getData;
   final delData;
   final updateData;
   final data;
@@ -179,7 +189,7 @@ class todaySchedule extends StatefulWidget {
 
 class _todayScheduleState extends State<todaySchedule> {
   bool _isChecked = false;
-
+  DateTime now = DateTime.now();
 
   //var count = 10;
   var scroll = ScrollController();
@@ -197,7 +207,12 @@ class _todayScheduleState extends State<todaySchedule> {
                 onChanged: (value){
                   setState(() {
                     _isChecked = value;
-                    print(widget.data);
+                    if(_isChecked){
+                      widget.getData(DateFormat('yyyy.MM.dd').format(now));
+                    }else{
+                      widget.getData();
+                    }
+
                   });
                 },
               ),
@@ -255,9 +270,10 @@ class _todayScheduleState extends State<todaySchedule> {
   }
 }
 
-class weekSchedule extends StatefulWidget {
-  weekSchedule({Key? key, this.data}) : super(key: key);
+class weekSchedule extends StatefulWidget { //TODO 랜더링 크기 flexible로 변경하기
+  weekSchedule({Key? key, this.data, this.getData}) : super(key: key);
 
+  final getData;
   final data;
   @override
   State<weekSchedule> createState() => _weekScheduleState();
@@ -274,10 +290,13 @@ class _weekScheduleState extends State<weekSchedule> {
 
   @override
   void initState() {//TODO 데이터 날짜 입력 및 파싱 효율적으로 바꾸기
+
+    widget.getData();
+
     for(var i = 0 ; i < widget.data.length ; i++){
-      int y = int.parse(widget.data[i]['date'].split(",")[0]);
-      int m = int.parse(widget.data[i]['date'].split(",")[1]);
-      int d = int.parse(widget.data[i]['date'].split(",")[2]);
+      int y = int.parse(widget.data[i]['date'].split(".")[0]);
+      int m = int.parse(widget.data[i]['date'].split(".")[1]);
+      int d = int.parse(widget.data[i]['date'].split(".")[2]);
 
       if(_events.containsKey(DateTime.utc(y, m, d))){
         _events.update(DateTime.utc(y, m, d), (value) => value + [widget.data[i]['title']]);
