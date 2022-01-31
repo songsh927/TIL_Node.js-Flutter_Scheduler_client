@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:http/http.dart' as http;
-
+import 'memo.dart';
+import 'addschedule.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -212,7 +213,6 @@ class _todayScheduleState extends State<todaySchedule> {
                     }else{
                       widget.getData();
                     }
-
                   });
                 },
               ),
@@ -366,18 +366,6 @@ class _weekScheduleState extends State<weekSchedule> {
   }
 }
 
-
-class memoTodo extends StatelessWidget {
-  const memoTodo({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: Text('MEMO'),
-    );
-  }
-}
-
 class updatePage extends StatelessWidget {
   updatePage({Key? key , this.data, this.updateData, this.delData , this.id}) : super(key: key);
 
@@ -502,103 +490,3 @@ class updatePage extends StatelessWidget {
     );
   }
 }
-
-class addSchedule extends StatefulWidget{
-  const addSchedule({Key? key, this.addData}) : super(key: key);
-
-  final addData;
-  @override
-  _addScheduleState createState() => _addScheduleState();
-}
-
-class _addScheduleState extends State<addSchedule> {
-
-  var inputDate = TextEditingController();
-  var inputTitle = TextEditingController();
-  var inputText = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      child: Container(
-        width: 400,
-        height: 330,
-        child: Column(
-          children: [
-            Text('일정 추가', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: TextField(
-                controller: inputDate,
-                decoration: InputDecoration(
-                  hintText: 'Date',
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                    borderSide: BorderSide(width: 1, color: Colors.blue),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                    borderSide: BorderSide(width: 1, color: Colors.teal),
-                  ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: TextField(
-                controller: inputTitle,
-                decoration: InputDecoration(
-                  hintText: 'Title',
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                    borderSide: BorderSide(width: 1, color: Colors.blue),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                    borderSide: BorderSide(width: 1, color: Colors.teal),
-                  ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: TextField(
-                controller: inputText,
-                decoration: InputDecoration(
-                  hintText: 'Text',
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                    borderSide: BorderSide(width: 1, color: Colors.blue),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                    borderSide: BorderSide(width: 1, color: Colors.teal),
-                  ),
-                ),
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.check),
-                  onPressed: (){
-                    widget.addData(inputDate.text, inputTitle.text, inputText.text);
-                    Navigator.pop(context);
-                  },
-                ),
-                IconButton(
-                  icon: Icon(Icons.cancel_outlined),
-                  onPressed: (){
-                    Navigator.pop(context);
-                  },
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
